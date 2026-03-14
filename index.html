@@ -1,3 +1,4 @@
+
 <!DOCTYPE html> 
 <html> 
 <head> 
@@ -7,8 +8,11 @@
     <meta name="keywords" content="gravity game, physics puzzle, space defense, orbit game, addictive games, top casual game, black hole game">
 <link rel="icon" type="image/png" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
-<meta name="mobile-web-app-capable" content="yes">   
- <title>Orbit: Kinetic Defense - Pro Edition</title> 
+   <meta name="theme-color" content="#000000">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Orbit: Kinetic Defense - Pro Edition</title> 
     <style> 
         body { margin: 0; overflow: hidden; background: #000; color: #0cf; font-family: 'Segoe UI', 'Courier New', monospace; touch-action: none; } 
         canvas { display: block; width: 100vw; height: 100vh; transition: transform 0.1s; } 
@@ -269,12 +273,13 @@
             flex-direction: column;
         }
 
-        #loading-bar-container {
-            width: 200px;
-            height: 4px;
-            background: #0cf33;
-            margin: 20px;
-            border: 1px solid #0cf;
+        ##loading-bar-container {
+    width: 200px;
+    height: 4px;
+    background: #0cf;  /* Changed from #0cf33 to #0cf */
+    margin: 20px;
+    border: 1px solid #0cf;
+
         }
 
         #loading-bar {
@@ -426,6 +431,8 @@
             <button class="skin-btn" style="background:#FF6600; border-color:#FF6600;" onclick="selectSkin(2)"></button>
             <button class="skin-btn" style="background:#FFD700; border-color:#FFD700;" onclick="selectSkin(3)"></button>
         </div>
+<button id="enable-audio" onclick="initAudio(); this.style.display='none'">🔊 ENABLE SOUND</button>
+
         <button id="btn-next" onclick="startLevel()">INITIATE NEXT WAVE</button>
         <button onclick="shareVictory()" style="background: linear-gradient(135deg, #f0f, #90f);">📤 SHARE VICTORY</button>
     </div>
@@ -474,15 +481,15 @@
     const SAVE_KEY = "orbitDefenseProSave";
 
     let saveData = {
-        credits: 100, // Starting bonus
-        skinsUnlocked: [true, false, false, false],
-        upgrades: {
-            satelliteCount: 1,          // <-- FIXED: Start with exactly 1 satellite
-            trailLength: 15,             // <-- FIXED: Much shorter tracer (was 50, then 20, now 15 for a short trail)
-            damageMultiplier: 1,
-            gravityResistance: 1,
-            comboBoost: 1
-        },
+    credits: 100,
+    skinsUnlocked: [true, false, false, false],
+    upgrades: {
+        satelliteCount: 1,
+        trailLength: 15,
+        damageMultiplier: 1,
+        gravityResistance: 1,
+        comboBoost: 1
+   },
         bestCombo: 0,
         bestScore: 0,
         lastDaily: null,
@@ -579,14 +586,21 @@
     }
     
     // Initialize audio with user interaction requirement
-    function initAudio() {
-        if (audioCtx) return;
-        try {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            // Pre-load audio context but don't play yet
-        } catch(e) {
-            audioEnabled = false;
-        }
+function initAudio() {
+    if (audioCtx && audioCtx.state === 'running') return;
+    
+    try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        // This "resumes" the audio context which Chrome blocks by default
+        audioCtx.resume().then(() => {
+            console.log("Audio started!");
+            // Play a little 'chirp' so the user knows it worked
+            playTone(800, 'sine', 0.2, 0.1);
+        });
+    } catch(e) {
+        console.error("Audio failed", e);
+    }
+}
     }
     
     // Unlock audio on first touch
@@ -943,7 +957,11 @@
         shakeIntensity = amt; 
     } 
     
-    function startLevel() { 
+    function startLevel() {
+if (audioCtx && audioCtx.state === 'running') {
+    document.getElementById('enable-audio').style.display = 'none';
+}
+ 
         if (level > 20) { 
             level = 1;
         } 
@@ -1453,4 +1471,9 @@
 </body> 
 </html>
 
+
+
+
+      
+     
 

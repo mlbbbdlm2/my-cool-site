@@ -1086,7 +1086,8 @@
         }); 
         
         let speedMultiplier = level > 20 ? Math.floor((level - 1) / 20) + 1 : 1; 
-        let spawnRate = Math.max(180, 1600 - (level * 65) - (speedMultiplier * 120)); 
+        let spawnRate = Math.max(450, 1600 - (level * 40));
+ 
         
         setTimeout(spawnEnemy, spawnRate / gameSpeed); 
     } 

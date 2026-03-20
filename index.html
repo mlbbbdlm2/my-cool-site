@@ -488,18 +488,6 @@
     const BOUNDS = 1150; 
     const GOAL_SCORE = 1400; 
     
-    // Detect low-end device
-    if (navigator.hardwareConcurrency <= 2 || !window.WebGLRenderingContext) {
-        isLowEnd = true;
-        // WORLD_SCALE is already defined above, so we can reassign
-        WORLD_SCALE = 0.35; // This will cause an error because WORLD_SCALE is const
-        // FIX: Change const to let above, or use a different approach
-    }
-    // FIX: Changed WORLD_SCALE from const to let
-    // Let's redefine it properly:
-    // Actually, let's fix this by changing the const above to let
-    // But since we can't change the past, I'll add a workaround
-    // For now, we'll just note that WORLD_SCALE should be let, not const
 
     const SAVE_KEY = "orbitDefenseProSave";
 

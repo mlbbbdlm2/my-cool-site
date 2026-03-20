@@ -1339,7 +1339,7 @@
             ctx.shadowBlur = 20;
             ctx.fillStyle = skins[currentSkin].planet;
             ctx.beginPath();
-            ctx.arc(p.x, p.y, 20, 0, Math.PI*2);
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
             ctx.fill();
             ctx.shadowBlur = 0;
         });

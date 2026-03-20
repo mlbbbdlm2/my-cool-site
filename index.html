@@ -479,7 +479,7 @@
     const canvas = document.getElementById("canvas"); 
     const ctx = canvas.getContext("2d"); 
     let level = 1, score = 0, hp = 100, phase = "BUILD"; 
-    let holes = [], planets = [], enemies = [], particles = []; 
+    let holes = [], planets = [], enemies = [], particles = [],hazards = []; 
     let isDragging = false, startPos = {x:0, y:0}, currentPos = {x:0, y:0}; 
     let buildTimer = 10, shakeIntensity = 0; 
     let G = 3.8; 
@@ -1007,7 +1007,16 @@
         
         planets = []; 
         enemies = []; 
-        particles = []; 
+        particles = [];
+        hazards = [];
+        for(let i=0; i < Math.min(5, level); i++) {
+            hazards.push({
+                x: (Math.random() - 0.5) * 1600,
+                y: (Math.random() - 0.5) * 1600,
+                r: 60
+            });
+        }
+ 
         hp = 100; 
         score = 0; 
         phase = "BUILD"; 
@@ -1146,7 +1155,17 @@
         
         planets.forEach(p => { 
             applyPhysics(p, true); 
-            p.x += p.vx; p.y += p.vy; 
+            p.x += p.vx; p.y += p.vy;
+            hazards.forEach(h => {
+                if (Math.hypot(p.x - h.x, p.y - h.y) < h.r + 20) {
+                    if (p.trail.length > 2) {
+                        p.trail = p.trail.slice(Math.floor(p.trail.length / 2));
+                        createExplosion(p.x, p.y, "#ff0000", 5);
+                        vibrate(50);
+                    }
+                }
+            });
+ 
             p.trail.push({x: p.x, y: p.y}); 
             if (p.trail.length > saveData.upgrades.trailLength) p.trail.shift(); 
         }); 
@@ -1242,6 +1261,16 @@
             ctx.fillStyle = 'rgba(0,204,255,0.03)';
             ctx.fill();
             ctx.restore();
+        });
+
+        hazards.forEach(h => {
+            ctx.beginPath();
+            ctx.arc(canvas.width/2 + h.x*WORLD_SCALE, canvas.height/2 + h.y*WORLD_SCALE, h.r * WORLD_SCALE, 0, Math.PI * 2);
+            ctx.fillStyle = "rgba(255, 0, 0, 0.2)";
+            ctx.fill();
+            ctx.strokeStyle = "#ff0000";
+            ctx.lineWidth = 2;
+            ctx.stroke();
         });
     }
     

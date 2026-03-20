@@ -1008,14 +1008,13 @@
         planets = []; 
         enemies = []; 
         particles = [];
-        hazards = [];
-        for(let i=0; i < Math.min(5, level); i++) {
-            hazards.push({
-                x: (Math.random() - 0.5) * 1600,
-                y: (Math.random() - 0.5) * 1600,
-                r: 60
-            });
-        }
+        hazards = [{
+            x: -1200, 
+            y: (Math.random() - 0.5) * 800, 
+            vx: 1.5 + (Math.random() * 2), // Horizontal drift
+            vy: (Math.random() - 0.5) * 0.5, // Slight vertical drift
+            r: 80
+        }];
  
         hp = 100; 
         score = 0; 
@@ -1328,11 +1327,61 @@
             ctx.lineWidth = 4; 
             ctx.stroke(); 
         }); 
-        
+        // Move the Red Hazard (Independent)
+        hazards.forEach(h => {
+            h.x += h.vx;
+            h.y += h.vy;
+            if (h.x > 1400) h.x = -1400;
+            if (h.x < -1400) h.x = 1400;
+            if (h.y > 1000) h.y = -1000;
+            if (h.y < -1000) h.y = 1000;
+        });
+
+        // 1. MOVE THE RED HAZARD (Independent)
+        hazards.forEach(h => {
+            h.x += h.vx;
+            h.y += h.vy;
+            if (h.x > 1400) h.x = -1400;
+            if (h.x < -1400) h.x = 1400;
+            if (h.y > 1000) h.y = -1000;
+            if (h.y < -1000) h.y = 1000;
+        });
+
+        // 2. MOVE SATELLITES AND DRAW TARGET LINES
         planets.forEach(p => {
+            p.x += p.vx;
+            p.y += p.vy;
+
+            // Check if satellite hits Red Hazard
+            hazards.forEach(h => {
+                if (Math.hypot(p.x - h.x, p.y - h.y) < h.r + 20) {
+                    if (p.trail.length > 2) {
+                        p.trail = p.trail.slice(Math.floor(p.trail.length / 2));
+                        createExplosion(p.x, p.y, "#ff0000", 5);
+                        vibrate(50);
+                    }
+                }
+            });
+
+            // Draw yellow target lines to enemies
             enemies.forEach(e => {
                 let dist = Math.hypot(p.x - e.x, p.y - e.y);
                 if (dist < 100 && dist > 60) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = 'rgba(255, 255, 0, 0.4)';
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([10, 10]);
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(e.x, e.y);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+            });
+        });
+            
+enemies.forEach(e => {
+                let dist = Math.hypot(p.x - e.x, p.y - e.y);
+                 if (dist < 100 && dist > 60) {
                     ctx.beginPath();
                     ctx.strokeStyle = 'rgba(255, 255, 0, ' + (1 - (dist / 100)) + ')';
                     ctx.lineWidth = 2;
